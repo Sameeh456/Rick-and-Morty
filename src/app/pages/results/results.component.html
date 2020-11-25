@@ -1,0 +1,125 @@
+<div id="wrapper">
+
+    <!-- Banner Section -->
+    <div class="results__banner pt-5">
+        <h3 class="results__title" style="margin-top: 120px;">Your Favorite Characters</h3>
+        <h3 class="results__title">from Rick and Morty</h3>
+
+        <!-- Serach Form -->
+        <form autocomplete="off" class="width__700" style="position: relative;" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+            <div class="home__searchbar">
+                <input id=input formControlName="name" (keyup)="onKey($event)" ng-model="queryParams['name']" type="text" placeholder="Search Your Favourite Character">
+                <div class="search__icon" (click)="onSearch()">
+                    <img style="float: right;margin-top: 5px;" src="../../../assets/icons/search.svg" alt="">
+                </div>
+            </div>
+            <div class="autofill__list" *ngIf="autoFillArray.length > 0">
+                <p *ngFor="let item of autoFillArray" (click)="onAutoFillClick(item)"> {{item}} </p> 
+            </div>
+        </form>
+
+        <!-- Filters  -->
+        <div class="results__filter">
+            <div class="row m-0">
+                <div class="col-md-5 col-sm-12 results__filter__option">
+                    <p class="results__filter__label" >Gender</p>
+                    <div class="results__filter__text" (click)="genderFilterOpen = !genderFilterOpen; statusFilterOpen=false ">
+                        <p > {{queryParams['gender'] || 'Select Gender'}}  </p> 
+                        <img class="results__filter__open" src="../../../assets/icons/arrow-down.svg" alt="">
+                    </div>
+                    <div class="results__filter__dropdown" *ngIf="genderFilterOpen">
+                        <p *ngFor="let item of genderFilter; let i=index"
+                        [ngStyle]="item == queryParams['gender'] ? {'background' : ' #38e4cd'} : {}"  (click)="onGenderFilter(item)">{{item}}</p>
+                    </div>
+                </div>
+                <div class="col-md-5 col-sm-12 results__filter__option">
+                    <p class="results__filter__label" >Status</p>
+                    <div class="results__filter__text" (click)="statusFilterOpen = !statusFilterOpen; genderFilterOpen=false">
+                        <p > {{queryParams['status'] || 'Select Status'}}  </p> 
+                        <img class="results__filter__open" src="../../../assets/icons/arrow-down.svg" alt="">
+                    </div>
+                    <div class="results__filter__dropdown" *ngIf="statusFilterOpen">
+                        <p *ngFor="let item of statusFilter; let i=index"
+                        [ngStyle]="item == queryParams['status'] ? {'background' : ' #38e4cd'} : {}" (click)="onStatusFilter(item)">{{item}}</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                     <button type="button" class="btn btn-outline-light" (click)="onFilterReset()">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="results__content" style="margin-top: 100px;">
+        <!-- Alert -->
+        <div class="alert alert-success results__alert" role="alert" *ngIf="!responseData" >
+            No characters found!
+          </div>
+
+        <!-- Pagination Index   -->
+        <div class="row results__pagination__index mb-5" *ngIf="responseData">
+            <p (click)="onPreviousClick()"
+            [ngStyle]="responseInfo?.prev == null ? {'background' : '#e8e7e7', 'color' : 'lightgray'} : {}"
+            ><<</p>
+            <p *ngFor="let item of subPages" 
+            [ngStyle]="item == activeIndex ? {'background' : 'rgb(0 133 105)', 'color' : 'white'} : {}"
+            (click)="onPaginationIndexClick(item)">{{item}}</p>
+            <p (click)="onNextClick()"
+            [ngStyle]="responseInfo?.next == null ? {'background' : '#e8e7e7', 'color' : 'lightgray'} : {}"
+            >>></p>
+        </div>
+
+        <!-- Character Cards -->
+        <div class="width__945 mb__50" *ngFor="let item of responseData; let i=index" 
+        [ngStyle]="displayIndexes?.includes(i) ?  {} : { 'display' : 'none'}" >
+            <div class="card" >
+                <img src={{item.image}} class="card-img-top" alt="...">
+                <div class="card-body">
+                    <div class="col-md-6">
+                        <p>Name: {{item.name}}</p>
+                        <p>Number of episodes: {{item.episode.length}}</p>
+                        <p class="mb-0">Last location: {{item.location.name}}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Status: {{item.status}}</p>
+                        <p>Gender: {{item.gender}}</p>
+                        <div style="width: 100%;">
+                            <button type="button" class="btn btn-outline-success" (click)="onMoreDetails(item)">More Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>       
+    </div>
+</div>
+
+<!-- --modal-- -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#displayDetailsModal" id="displayDetailsModalButton"
+style="display: none;">Open modal</button>
+
+<div class="modal fade" id="displayDetailsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content p-4">
+          <div class="modal-header px-0">
+              <h5 class="modal-title " id="exampleModalLabel">Details</h5>
+          </div>
+          <div class="modal-body">
+              <div class="details-one">
+                    <p class="text-muted mb-2">Name: {{moreDetailsItem?.name}}</p>
+                    <p class="text-muted mb-2">Number of episodes: {{moreDetailsItem?.episode.length}}</p>
+                    <p class="text-muted mb-2">Last location: {{moreDetailsItem?.location.name}}</p>
+                    <p class="text-muted mb-2">Status: {{moreDetailsItem?.status}}</p>
+                    <p class="text-muted mb-2">Gender: {{moreDetailsItem?.gender}}</p>
+                    <p class="text-muted mb-2">Origin: {{moreDetailsItem?.origin?.name || 'Unknown'}}</p>
+                    <p class="text-muted mb-2">Species: {{moreDetailsItem?.species || 'Unknown'}}</p>
+                    <p class="text-muted mb-2">Type: {{moreDetailsItem?.type || 'Unknown'}}</p>
+              </div>
+          </div>
+          <div class="modal-footer px-0 pb-0">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
+

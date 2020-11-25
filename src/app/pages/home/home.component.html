@@ -1,0 +1,18 @@
+<div id="wrapper">
+    <div class="home__content">
+        <div class="home__title">Rick and Morty</div>
+
+        <!-- Search Form -->
+        <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+            <div class="home__searchbar">
+                <input formControlName="name" (keyup)="onKey($event)" type="text" placeholder="Search Your Favourite Character">
+                <div class="search__icon" (click)="onSearch()">
+                    <img style="float: right;margin-top: 5px;" src="../../../assets/icons/search.svg" alt="">
+                </div>
+            </div>
+            <div class="autofill__list" *ngIf="autoFillArray.length > 0">
+                <p *ngFor="let item of autoFillArray" (click)="onAutoFillClick(item)"> {{item}} </p> 
+            </div>
+        </form>
+    </div>
+</div>
